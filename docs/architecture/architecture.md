@@ -134,16 +134,6 @@
 - Leader 处理所有写请求，Follower 可处理读请求（未来优化）
 - 容忍 (N-1)/2 个节点故障（3 节点容忍 1 个故障）
 
-## 2.4 技术选型依据
-
-| 技术领域 | 选择 | 替代方案 | 选择理由 |
-|----------|------|----------|----------|
-| **异步运行时** | Tokio | async-std | Rust 生态系统标准，性能优秀 |
-| **HTTP 框架** | Axum | actix-web, warp | Tokio 生态，类型安全，Tower 集成 |
-| **gRPC 框架** | Tonic | grpc-rs | Tokio 原生，prost 支持，社区活跃 |
-| **Raft 实现** | async-raft | raft-rs | Tokio 原生异步，避免 `spawn_blocking` |
-| **序列化** | bincode | serde_json, prost | 性能优先，二进制紧凑 |
-| **错误处理** | thiserror + anyhow | failure | 社区标准，thiserror 定义错误，anyhow 处理错误 |
 
 ---
 
