@@ -1,0 +1,80 @@
+[package]
+name = "minikv"
+version = "0.1.0"
+edition = "2024"
+authors = ["zine yu"]
+description = "A distributed key-value store built with Rust and Tokio"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/zine0/minikv"
+keywords = ["kv", "distributed", "raft", "tokio"]
+categories = ["database", "distributed-systems"]
+
+[dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+futures = "0.3"
+async-trait = "0.1"
+
+# Web frameworks
+axum = "0.8"
+tonic = "0.14"
+tower = { version = "0.5", features = ["util", "limit"] }
+tower-http = { version = "0.6", features = ["trace", "cors"] }
+hyper = "1"
+
+# Consensus
+async-raft = "0.6"
+
+# Storage (optional)
+rocksdb = { version = "0.24", optional = true }
+sled = { version = "0.34", optional = true }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bincode = "3"
+prost = "0.14"
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Utils
+bytes = "1"
+parking_lot = "0.12"
+dashmap = "6"
+
+[build-dependencies]
+tonic-build = "0.14"
+
+[dev-dependencies]
+criterion = { version = "0.8", features = ["async_tokio"] }
+tokio-test = "0.4"
+
+[features]
+default = ["disk-storage"]
+disk-storage = []
+rocksdb-backend = ["rocksdb"]
+sled-backend = ["sled"]
+
+[[bin]]
+name = "minikv"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.test]
+opt-level = 2

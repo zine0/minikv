@@ -1,0 +1,51 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build
+/dist/
+/build/
+
+# Data
+/data/
+*.db
+*.log
+*.wal
+*.sst
+
+# Config
+/config/local.toml
+/config/node*.toml
+
+# Logs
+/logs/
+*.log
+
+# Test
+/coverage/
+.nyc_output/
+
+# Documentation
+/doc/
+
+# Temporary files
+/tmp/
+*.tmp
+*.temp
+
+# Environment
+.env
+.env.local
+
+# OS
+Thumbs.db
+.DS_Store

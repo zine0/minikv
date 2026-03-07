@@ -1,0 +1,20 @@
+# Server configuration
+[server]
+http_addr = "0.0.0.0:8080"
+grpc_addr = "0.0.0.0:9090"
+http_enabled = true
+grpc_enabled = true
+
+# Storage configuration
+[storage]
+engine = "InMemory"
+# data_dir = "/var/lib/minikv/data"  # Uncomment for disk storage
+
+# Consensus configuration
+[consensus]
+mode = "Single"
+
+# Logging configuration
+[logging]
+level = "info"  # trace, debug, info, warn, error
+format = "text"  # text or json
