@@ -1,6 +1,5 @@
 # 模块设计
 
-[返回主页](./README.md) | [上一章：系统架构](./02-architecture.md) | [下一章：核心接口设计](./04-interfaces.md)
 
 ---
 
@@ -240,4 +239,3 @@ impl RaftNetworkFactory for RaftNetwork {
 
 ---
 
-[返回主页](./README.md) | [上一章：系统架构](./02-architecture.md) | [下一章：核心接口设计](./04-interfaces.md)

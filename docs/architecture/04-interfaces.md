@@ -1,6 +1,5 @@
 # 核心接口设计
 
-[返回主页](./README.md) | [上一章：模块设计](./03-modules.md) | [下一章：数据流设计](./05-data-flow.md)
 
 ---
 
@@ -287,4 +286,3 @@ format = "json"
 
 ---
 
-[返回主页](./README.md) | [上一章：模块设计](./03-modules.md) | [下一章：数据流设计](./05-data-flow.md)

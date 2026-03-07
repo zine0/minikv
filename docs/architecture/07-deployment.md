@@ -1,6 +1,5 @@
 # 部署与运维
 
-[返回主页](./README.md) | [上一章：技术栈](./06-tech-stack.md) | [下一章：实施路线图](./08-roadmap.md)
 
 ---
 
@@ -228,4 +227,3 @@ lazy_static! {
 
 ---
 
-[返回主页](./README.md) | [上一章：技术栈](./06-tech-stack.md) | [下一章：实施路线图](./08-roadmap.md)

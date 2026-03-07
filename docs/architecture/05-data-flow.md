@@ -1,6 +1,5 @@
 # 数据流设计
 
-[返回主页](./README.md) | [上一章：核心接口设计](./04-interfaces.md) | [下一章：技术栈](./06-tech-stack.md)
 
 ---
 
@@ -188,4 +187,3 @@ Time    Node1 (Leader)    Node2 (Follower)    Node3 (Follower)
 
 ---
 
-[返回主页](./README.md) | [上一章：核心接口设计](./04-interfaces.md) | [下一章：技术栈](./06-tech-stack.md)

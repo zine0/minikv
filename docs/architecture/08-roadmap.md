@@ -1,6 +1,5 @@
 # 实施路线图
 
-[返回主页](./README.md) | [上一章：部署与运维](./07-deployment.md) | [下一章：附录](./09-appendix.md)
 
 ---
 
@@ -116,4 +115,3 @@
 
 ---
 
-[返回主页](./README.md) | [上一章：部署与运维](./07-deployment.md) | [下一章：附录](./09-appendix.md)

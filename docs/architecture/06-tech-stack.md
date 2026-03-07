@@ -1,6 +1,5 @@
 # 技术栈
 
-[返回主页](./README.md) | [上一章：数据流设计](./05-data-flow.md) | [下一章：部署与运维](./07-deployment.md)
 
 ---
 
@@ -115,4 +114,3 @@ pub async fn put(&self, key: Vec<u8>, value: Vec<u8>) -> Result<()> {
 
 ---
 
-[返回主页](./README.md) | [上一章：数据流设计](./05-data-flow.md) | [下一章：部署与运维](./07-deployment.md)
