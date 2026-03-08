@@ -108,6 +108,10 @@ pub fn create_http_router(engine: Arc<Engine>) -> Router {
 - 协调 Consensus 和 Storage 层
 - 处理单节点和集群模式的差异
 
+**零拷贝设计**:
+- 传入参数尽量使用引用 `&[u8]`，避免不必要的拷贝
+- 内部根据模式决定是否需要转换为 owned 类型
+
 **依赖**:
 - `consensus` - 提交命令到共识层
 - `storage` - 直接访问存储（单节点模式优化）
@@ -122,14 +126,23 @@ pub struct Engine<C: Consensus, S: StorageEngine> {
 }
 
 impl<C: Consensus, S: StorageEngine> Engine<C, S> {
+    /// 零拷贝读取：key 使用引用
     pub async fn get(&self, key: &[u8]) -> Result<Option<Vec<u8>>> {
         // 单节点模式: 直接读取 storage
         // 集群模式: 通过 consensus.read() 保证线性一致性
         self.consensus.read(key).await
     }
     
+    /// 写入：key/value 为 owned 类型（需要传递给共识层）
     pub async fn put(&self, key: Vec<u8>, value: Vec<u8>) -> Result<()> {
         let cmd = Command::Put { key, value };
+        self.consensus.propose(cmd).await?;
+        Ok(())
+    }
+    
+    /// 删除
+    pub async fn delete(&self, key: Vec<u8>) -> Result<()> {
+        let cmd = Command::Delete { key };
         self.consensus.propose(cmd).await?;
         Ok(())
     }
@@ -144,6 +157,10 @@ impl<C: Consensus, S: StorageEngine> Engine<C, S> {
 - 实现集群模式的 RaftConsensus
 - 封装 Raft 状态机
 
+**零拷贝设计**:
+- key 参数使用 `&[u8]` 引用，避免复制
+- 返回值使用 `Vec<u8>`，确保数据独立性
+
 **依赖**:
 - `storage` - 应用命令到存储引擎
 - `common` - Command 类型
@@ -153,15 +170,24 @@ impl<C: Consensus, S: StorageEngine> Engine<C, S> {
 **关键接口**:
 ```rust
 #[async_trait]
-pub trait Consensus: Send + Sync + Clone {
+pub trait Consensus: Send + Sync + Clone + 'static {
     /// 提交写入命令（通过共识协议）
+    /// 命令中包含 owned 的 key/value，传递给状态机
     async fn propose(&self, cmd: Command) -> Result<Vec<u8>>;
     
     /// 强一致性读取（通过 Raft）
+    /// 零拷贝：key 使用引用
     async fn read(&self, key: &[u8]) -> Result<Option<Vec<u8>>>;
     
     /// 本地优化读取（不通过 Raft，用于单节点或 leaseholder 优化）
+    /// 零拷贝：key 使用引用
     async fn read_local(&self, key: &[u8]) -> Result<Option<Vec<u8>>>;
+    
+    /// 获取当前 Leader 节点 ID
+    async fn leader(&self) -> Option<u64>;
+    
+    /// 判断当前节点是否为 Leader
+    async fn is_leader(&self) -> bool;
 }
 ```
 
@@ -173,25 +199,33 @@ pub trait Consensus: Send + Sync + Clone {
 - 实现 DiskStorage（生产环境）
 - 管理数据持久化和 WAL
 
+**零拷贝设计**:
+- **Key**: 使用 `&[u8]` 而非 `&str`，避免字符串转换开销，支持二进制键
+- **Value**: 读取时返回 `Option<Vec<u8>>`，存储层内部可使用零拷贝优化（如 Bytes 类型）
+
 **依赖**:
 - `common` - Key/Value 类型
 - `errors` - 存储错误
-- 外部: `rocksdb` (可选), `sled` (可选)
+- 外部: `rocksdb` (可选), `sled` (可选), `bytes`
 
 **关键接口**:
 ```rust
 #[async_trait]
-pub trait StorageEngine: Send + Sync + Clone {
+pub trait StorageEngine: Send + Sync + Clone + 'static {
     /// 获取单个键值
+    /// 零拷贝：key 使用引用，避免复制
     async fn get(&self, key: &[u8]) -> Result<Option<Vec<u8>>>;
     
     /// 设置键值（覆盖）
+    /// key/value 为owned类型，存储层自行决定内存管理策略
     async fn put(&self, key: Vec<u8>, value: Vec<u8>) -> Result<()>;
     
     /// 删除键值
+    /// 零拷贝：key 使用引用
     async fn delete(&self, key: &[u8]) -> Result<()>;
     
     /// 范围扫描
+    /// 零拷贝：start/end 使用引用
     async fn scan(&self, start: &[u8], end: &[u8]) -> Result<Vec<(Vec<u8>, Vec<u8>)>>;
     
     /// 批量操作（可选）
@@ -205,6 +239,12 @@ pub trait StorageEngine: Send + Sync + Clone {
         }
         Ok(())
     }
+    
+    /// 快照（用于 Raft 状态机快照）
+    async fn snapshot(&self) -> Result<Vec<u8>>;
+    
+    /// 恢复（从快照恢复状态）
+    async fn restore(&self, snapshot: Vec<u8>) -> Result<()>;
 }
 ```
 
